@@ -1,0 +1,306 @@
+{
+    "log": {
+        "disabled": false,
+        "level": "info",
+        "timestamp": true
+    },
+    "dns": {
+        "servers": [
+            {
+                "tag": "dns_proxy",
+                "address": "https://1.1.1.1/dns-query",
+                "address_resolver": "dns_local",
+                "strategy": "ipv4_only",
+                "detour": "Service"
+            },
+            {
+                "tag": "dns_direct",
+                "address": "https://1.1.1.1/dns-query",
+                "address_resolver": "dns_local",
+                "strategy": "ipv4_only",
+                "detour": "Service"
+            },
+            {
+                "tag": "dns_local",
+                "address": "10.202.10.202",
+                "detour": "direct"
+            },
+            {
+                "tag": "dns_success",
+                "address": "rcode://success"
+            },
+            {
+                "tag": "dns_refused",
+                "address": "rcode://refused"
+            },
+            {
+                "tag": "dns_fakeip",
+                "address": "fakeip"
+            }
+        ],
+        "rules": [
+            {
+                "rule_set": [
+                    "dns-list-doh"
+                ],
+                "server": "dns_success",
+                "disable_cache": true
+            },
+            {
+                "rule_set": [
+                    "geosite-ir"
+                ],
+                "server": "dns_local"
+            },
+            {
+                "query_type": [
+                    "A",
+                    "AAAA",
+                    "CNAME"
+                ],
+                "server": "dns_fakeip"
+            },
+            {
+                "query_type": [
+                    "A",
+                    "AAAA",
+                    "CNAME"
+                ],
+                "invert": true,
+                "server": "dns_refused",
+                "disable_cache": true
+            }
+        ],
+        "final": "dns_proxy",
+        "independent_cache": true,
+        "fakeip": {
+            "enabled": true,
+            "inet4_range": "198.18.0.0/15",
+            "inet6_range": "fc00::/18"
+        }
+    },
+    "inbounds": [
+        {
+            "type": "tun",
+            "tag": "tun-in",
+            "interface_name": "singbox-tun",
+            "auto_route": true,
+            "strict_route": true,
+            "stack": "gvisor",
+            "address": [
+                "172.18.0.1/30"
+            ]
+        }
+    ],
+    "outbounds": [
+        {
+            "type": "selector",
+            "tag": "Service",
+            "default": "\ud83c\udde9\ud83c\uddea Germany",
+            "outbounds": [
+                "Auto",
+                "\ud83c\udde9\ud83c\uddea Germany",
+                "\ud83c\uddf3\ud83c\uddf1 Netherlands",
+                "\ud83c\uddec\ud83c\udde7 United Kingdom",
+                "\ud83c\uddfa\ud83c\uddf8 United States",
+                "\ud83c\udde9\ud83c\uddea Latency",
+                "\ud83c\udde9\ud83c\uddea Fail Safe",
+                "\ud83c\udde9\ud83c\uddea IPv6"
+            ],
+            "interrupt_exist_connections": true
+        },
+        {
+            "type": "direct",
+            "tag": "direct"
+        },
+        {
+            "type": "vmess",
+            "tag": "\u2618\ufe0f GreenY",
+            "server": "185.124.175.69",
+            "server_port": 7010,
+            "multiplex": {
+                "enabled": false,
+                "protocol": "h2mux",
+                "max_streams": 8
+            },
+            "uuid": "73a59b2f-a019-4d4b-9f1e-d207a6f7aaf6"
+        },
+        {
+            "type": "vmess",
+            "tag": "\ud83c\udde9\ud83c\uddea Germany",
+            "server": "185.124.175.69",
+            "server_port": 7010,
+            "multiplex": {
+                "enabled": false,
+                "protocol": "h2mux",
+                "max_streams": 8
+            },
+            "uuid": "73a59b2f-a019-4d4b-9f1e-d207a6f7aaf6"
+        },
+        {
+            "type": "vmess",
+            "tag": "\ud83c\uddf3\ud83c\uddf1 Netherlands",
+            "server": "185.124.175.69",
+            "server_port": 7020,
+            "multiplex": {
+                "enabled": false,
+                "protocol": "h2mux",
+                "max_streams": 8
+            },
+            "uuid": "73a59b2f-a019-4d4b-9f1e-d207a6f7aaf6"
+        },
+        {
+            "type": "vmess",
+            "tag": "\ud83c\uddec\ud83c\udde7 United Kingdom",
+            "server": "185.124.175.69",
+            "server_port": 7030,
+            "multiplex": {
+                "enabled": false,
+                "protocol": "h2mux",
+                "max_streams": 8
+            },
+            "uuid": "73a59b2f-a019-4d4b-9f1e-d207a6f7aaf6"
+        },
+        {
+            "type": "vmess",
+            "tag": "\ud83c\uddfa\ud83c\uddf8 United States",
+            "server": "185.124.175.69",
+            "server_port": 7040,
+            "multiplex": {
+                "enabled": false,
+                "protocol": "h2mux",
+                "max_streams": 8
+            },
+            "uuid": "73a59b2f-a019-4d4b-9f1e-d207a6f7aaf6"
+        },
+        {
+            "type": "vmess",
+            "tag": "\ud83c\udde9\ud83c\uddea Latency",
+            "server": "188.212.97.69",
+            "server_port": 7070,
+            "multiplex": {
+                "enabled": false,
+                "protocol": "h2mux",
+                "max_streams": 8
+            },
+            "uuid": "73a59b2f-a019-4d4b-9f1e-d207a6f7aaf6"
+        },
+        {
+            "type": "vmess",
+            "tag": "\ud83c\udde9\ud83c\uddea Fail Safe",
+            "server": "104.17.148.22",
+            "server_port": 443,
+            "transport": {
+                "headers": {
+                    "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
+                },
+                "host": "de.walkerpubg.ir",
+                "path": "/introduction-video",
+                "type": "httpupgrade"
+            },
+            "tls": {
+                "enabled": true,
+                "server_name": "walkerpubg.ir"
+            },
+            "multiplex": {
+                "enabled": false,
+                "protocol": "h2mux",
+                "max_streams": 8
+            },
+            "uuid": "73a59b2f-a019-4d4b-9f1e-d207a6f7aaf6"
+        },
+        {
+            "type": "vless",
+            "tag": "\ud83c\udde9\ud83c\uddea IPv6",
+            "server": "de.v6.stay-green.top",
+            "server_port": 443,
+            "tls": {
+                "enabled": true,
+                "server_name": "stackoverflow.com",
+                "reality": {
+                    "enabled": true,
+                    "public_key": "mvxpil1-SwlgDfUNU-HZFImjPa6maQkM_ZGsybTw1QE",
+                    "short_id": "16c4e5bfbcf107b3"
+                },
+                "utls": {
+                    "enabled": true,
+                    "fingerprint": "chrome"
+                }
+            },
+            "multiplex": {
+                "enabled": false,
+                "protocol": "h2mux",
+                "max_streams": 8
+            },
+            "uuid": "854a76ef-0704-477c-a84b-e8c75d27526b"
+        }
+    ],
+    "route": {
+        "rules": [
+            {
+                "inbound": "tun-in",
+                "action": "sniff"
+            },
+            {
+                "protocol": "dns",
+                "action": "hijack-dns"
+            },
+            {
+                "rule_set": [
+                    "dns-list-doh"
+                ],
+                "action": "reject"
+            },
+            {
+                "rule_set": [
+                    "geosite-ir",
+                    "geoip-ir"
+                ],
+                "outbound": "direct"
+            },
+            {
+                "ip_is_private": true,
+                "outbound": "direct"
+            }
+        ],
+        "rule_set": [
+            {
+                "type": "remote",
+                "tag": "dns-list-doh",
+                "format": "binary",
+                "url": "https://raw.githubusercontent.com/DDCHlsq/sing-ruleset/ruleset/httpdns.srs",
+                "download_detour": "Service"
+            },
+            {
+                "type": "remote",
+                "tag": "geosite-category-ads-all",
+                "format": "binary",
+                "url": "https://raw.githubusercontent.com/Chocolate4U/Iran-sing-box-rules/rule-set/geosite-category-ads-all.srs",
+                "download_detour": "Service"
+            },
+            {
+                "type": "remote",
+                "tag": "geosite-ir",
+                "format": "binary",
+                "url": "https://raw.githubusercontent.com/Chocolate4U/Iran-sing-box-rules/rule-set/geosite-ir.srs",
+                "download_detour": "Service"
+            },
+            {
+                "type": "remote",
+                "tag": "geoip-ir",
+                "format": "binary",
+                "url": "https://raw.githubusercontent.com/Chocolate4U/Iran-sing-box-rules/rule-set/geoip-ir.srs",
+                "download_detour": "Service"
+            }
+        ],
+        "final": "Service",
+        "auto_detect_interface": true,
+        "override_android_vpn": true
+    },
+    "experimental": {
+        "cache_file": {
+            "enabled": true,
+            "store_fakeip": false
+        }
+    }
+}
